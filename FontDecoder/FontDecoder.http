@@ -1,0 +1,6 @@
+@FontDecoder_HostAddress = http://localhost:5234
+
+GET {{FontDecoder_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
