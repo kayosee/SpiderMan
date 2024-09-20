@@ -63,7 +63,8 @@ namespace FontDecoder
                                 var claims = new[]
                                                     {
                                     new Claim(ClaimTypes.NameIdentifier, context.Username, ClaimValueTypes.String, context.Options.ClaimsIssuer),
-                                    new Claim(ClaimTypes.Name, context.Username, ClaimValueTypes.String, context.Options.ClaimsIssuer)
+                                    new Claim(ClaimTypes.Name, context.Username, ClaimValueTypes.String, context.Options.ClaimsIssuer),
+                                    new Claim(ClaimTypes.Role,user.Roles,ClaimValueTypes.String,context.Options.ClaimsIssuer)
                                 };
 
                                 context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, context.Scheme.Name));
@@ -75,16 +76,22 @@ namespace FontDecoder
                     };
                 });
 
+            builder.Services.AddAuthorization(o =>
+            {
+                o.AddPolicy("admin", p => p.RequireRole("admin"));
+            });
+            
+
             var app = builder.Build();
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            //if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors(f => f.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
             app.UseAuthorization();
 
 

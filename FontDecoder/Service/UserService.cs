@@ -18,7 +18,7 @@ namespace FontDecoder.Service
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();                
-                user.Password = EncryptProvider.AESEncrypt(user.Password, nameof(FontDecoder));
+                user.Password = EncryptProvider.Sha1(user.Password);
                 connection.Insert<User>(user);                
             }
         }
@@ -29,7 +29,7 @@ namespace FontDecoder.Service
             {
                 connection.Open();
                 password = EncryptProvider.Sha1(password);
-                user = connection.QueryFirst<User>("select * from user where username=@username and password=@password", new { username, password });
+                user = connection.QueryFirstOrDefault<User>("select * from user where username=@username and password=@password", new { username, password });
                 if (user != null)
                 {
                     return true;
@@ -47,7 +47,7 @@ namespace FontDecoder.Service
             }
         }
 
-        public int ChangeCredit(string username, int number)
+        public int SetCredit(string username, int number)
         {
             using (var connection = new SqliteConnection(connectionString))
             {
@@ -63,6 +63,26 @@ namespace FontDecoder.Service
             {
                 connection.Open();
                 connection.Execute("delete from user where username=@username", new { username });
+            }
+        }
+
+        public void UpdateUser(User user)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                user.Password = EncryptProvider.Sha1(user.Password);
+                connection.Update<User>(user);
+            }
+        }
+
+        public int GetCredit(string username)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var credit = connection.ExecuteScalar<int>("select credit from user where username=@username", new { username });
+                return credit;
             }
         }
     }
